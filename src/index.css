@@ -195,8 +195,7 @@
 /* ── Frosted glass navigation bar ───────────────────────────── */
 .glass-nav {
   background: rgba(255, 255, 255, 0.74);
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  @apply backdrop-blur-[30px] backdrop-saturate-200;
   box-shadow:
     0 4px 24px rgba(68, 58, 130, 0.08),
     0 0 0 0.5px rgba(185, 180, 220, 0.4),
@@ -206,8 +205,7 @@
 /* ── Frosted glass content card ─────────────────────────────── */
 .glass-section {
   background: rgba(255, 255, 255, 0.84);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  @apply backdrop-blur-xl backdrop-saturate-180;
   box-shadow:
     0 8px 40px rgba(68, 58, 130, 0.09),
     0 2px 12px rgba(0, 0, 0, 0.04),
