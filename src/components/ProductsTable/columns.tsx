@@ -132,7 +132,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
         <div className="flex items-center gap-1.5">
           <Button
             size="icon"
-            className="w-8 h-8 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="w-13 h-6.75 rounded-[1rem] bg-primary hover:bg-primary/90 text-primary-foreground"
             onClick={() => onEdit(row.original)}
             aria-label="Редактировать"
           >

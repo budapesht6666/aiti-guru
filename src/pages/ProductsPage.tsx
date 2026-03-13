@@ -25,7 +25,7 @@ export function ProductsPage() {
   return (
     <div className="min-h-screen bg-[#f6f6f6]">
       {/* Navigation bar */}
-      <header className="bg-background rounded-[10px] mx-4 sm:mx-6 lg:mx-7.5 mt-5 sticky top-5 z-20">
+      <header className="bg-background rounded-[10px] mx-4 sm:mx-6 lg:mx-7.5 sticky top-5 z-20">
         <div className="px-7.5 h-26.25 flex items-center gap-4">
           <h1 className="text-2xl font-bold text-foreground shrink-0">Товары</h1>
           <div className="flex-1 flex justify-center">
