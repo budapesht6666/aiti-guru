@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/useAuthStore';
+import { useProductStore } from '@/store/useProductStore';
 import { ProductsTable } from '@/components/ProductsTable/ProductsTable';
 import { Pagination } from '@/components/Pagination';
 import { SearchInput } from '@/components/SearchInput';
@@ -12,17 +13,23 @@ import type { TableProduct } from '@/components/ProductsTable/columns';
 export function ProductsPage() {
   const queryClient = useQueryClient();
   const logout = useAuthStore((s) => s.logout);
+  const resetFilters = useProductStore((s) => s.resetFilters);
 
   const [addOpen, setAddOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<TableProduct | null>(null);
+  const [resetKey, setResetKey] = useState(0);
 
   const handleEdit = useCallback((p: TableProduct) => setEditProduct(p), []);
-  const handleRefetch = () => queryClient.invalidateQueries({ queryKey: ['products'] });
+  const handleRefetch = () => {
+    resetFilters();
+    setResetKey((k) => k + 1);
+    queryClient.invalidateQueries({ queryKey: ['products'] });
+  };
 
   return (
-    <div className="min-h-screen bg-[#f6f6f6]">
+    <div className="min-h-screen lg-bg-neutral">
       {/* Navigation bar */}
-      <header className="bg-background rounded-[10px] mx-4 sm:mx-6 lg:mx-7.5 sticky top-5 z-20">
+      <header className="glass-nav rounded-[10px] mx-4 sm:mx-6 lg:mx-7.5 sticky top-5 z-20">
         <div className="px-7.5 h-26.25 flex items-center gap-4">
           <h1 className="text-2xl font-bold text-foreground shrink-0">Товары</h1>
           <div className="flex-1 flex justify-center">
@@ -48,7 +55,7 @@ export function ProductsPage() {
 
       {/* Content card */}
       <main className="mx-4 sm:mx-6 lg:mx-7.5 mt-7.5 pb-6">
-        <div className="bg-background rounded-xl p-7.5 flex flex-col gap-10">
+        <div className="glass-section rounded-xl p-3 sm:p-5 lg:p-7.5 flex flex-col gap-5 lg:gap-10">
           {/* Card header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
             <h2 className="text-xl font-bold text-[#333]">Все позиции</h2>
@@ -94,7 +101,7 @@ export function ProductsPage() {
           </div>
 
           {/* Table */}
-          <ProductsTable onEdit={handleEdit} />
+          <ProductsTable onEdit={handleEdit} resetKey={resetKey} />
 
           {/* Pagination */}
           <Pagination />

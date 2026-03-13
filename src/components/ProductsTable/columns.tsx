@@ -30,39 +30,44 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
     {
       id: 'select',
       header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          indeterminate={table.getIsSomePageRowsSelected()}
-          onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
-          aria-label="Выбрать все"
-        />
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            indeterminate={table.getIsSomePageRowsSelected()}
+            onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
+            aria-label="Выбрать все"
+          />
+        </div>
       ),
       cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(v) => row.toggleSelected(!!v)}
-          aria-label="Выбрать строку"
-        />
+        <div className="flex items-center justify-center">
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(v) => row.toggleSelected(!!v)}
+            aria-label="Выбрать строку"
+          />
+        </div>
       ),
       enableSorting: false,
-      size: 40,
+      size: 48,
     },
     {
       id: 'product',
       header: 'Наименование',
       accessorFn: (row) => row.title,
+      size: 300,
       cell: ({ row }) => {
         const p = row.original;
         return (
-          <div className="flex items-center gap-3 min-w-0">
+          <div className="flex items-center gap-2 md:gap-3 min-w-0">
             {p.thumbnail ? (
               <img
                 src={p.thumbnail}
                 alt={p.title}
-                className="w-12 h-12 object-cover rounded-lg shrink-0 bg-muted"
+                className="w-9 h-9 md:w-12 md:h-12 object-cover rounded-lg shrink-0 bg-muted"
               />
             ) : (
-              <div className="w-12 h-12 rounded-lg bg-muted shrink-0" />
+              <div className="w-9 h-9 md:w-12 md:h-12 rounded-lg bg-muted shrink-0" />
             )}
             <div className="min-w-0">
               <p className="font-semibold text-sm text-foreground truncate">{p.title}</p>
@@ -76,6 +81,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
       id: 'brand',
       header: 'Вендор',
       accessorFn: (row) => row.brand,
+      size: 160,
       cell: ({ getValue }) => (
         <span className="font-semibold text-sm">{getValue<string>() ?? '—'}</span>
       ),
@@ -84,6 +90,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
       id: 'sku',
       header: 'Артикул',
       accessorFn: (row) => row.sku,
+      size: 170,
       cell: ({ getValue }) => (
         <span className="text-sm text-muted-foreground">{getValue<string>() ?? '—'}</span>
       ),
@@ -92,6 +99,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
       id: 'rating',
       header: 'Оценка',
       accessorFn: (row) => row.rating,
+      size: 100,
       cell: ({ getValue }) => {
         const v = getValue<number>();
         const low = v < 3;
@@ -106,6 +114,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
       id: 'price',
       header: 'Цена, ₽',
       accessorFn: (row) => row.price,
+      size: 100,
       cell: ({ getValue }) => {
         const v = getValue<number>();
         return (
@@ -159,7 +168,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
         </div>
       ),
       enableSorting: false,
-      size: 80,
+      size: 100,
     },
   ];
 }
