@@ -2,16 +2,9 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useProductStore } from '@/store/useProductStore';
-
-interface AddForm {
-  title: string;
-  price: number;
-  brand: string;
-  sku: string;
-}
+import { useAddProductMutation } from '@/api/products';
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { ProductFormFields, type ProductFormData } from '@/components/ProductFormFields';
 
 interface AddProductSheetProps {
   open: boolean;
@@ -19,17 +12,18 @@ interface AddProductSheetProps {
 }
 
 export function AddProductSheet({ open, onOpenChange }: AddProductSheetProps) {
-  const addProduct = useProductStore((s) => s.addProduct);
+  const isMobile = useIsMobile();
+  const mutation = useAddProductMutation();
 
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
-  } = useForm<AddForm>();
+    formState: { errors, isSubmitting },
+  } = useForm<ProductFormData>();
 
-  const onSubmit = (data: AddForm) => {
-    addProduct({ ...data, price: Number(data.price) });
+  const onSubmit = async (data: ProductFormData) => {
+    await mutation.mutateAsync({ ...data, price: Number(data.price) });
     toast.success('Товар успешно добавлен');
     reset();
     onOpenChange(false);
@@ -37,63 +31,29 @@ export function AddProductSheet({ open, onOpenChange }: AddProductSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md">
-        <SheetHeader>
+      <SheetContent
+        side={isMobile ? 'bottom' : 'right'}
+        className="w-full sm:max-w-md data-[side=bottom]:max-h-[90vh] data-[side=bottom]:overflow-y-auto"
+      >
+        <SheetHeader className="p-8">
           <SheetTitle>Добавить товар</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2 px-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="add-title">Наименование</Label>
-            <Input
-              id="add-title"
-              placeholder="Название товара"
-              {...register('title', { required: 'Обязательное поле' })}
-            />
-            {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="add-price">Цена, ₽</Label>
-            <Input
-              id="add-price"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              {...register('price', {
-                required: 'Обязательное поле',
-                min: { value: 0, message: 'Цена не может быть отрицательной' },
-              })}
-            />
-            {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="add-brand">Вендор</Label>
-            <Input
-              id="add-brand"
-              placeholder="Производитель"
-              {...register('brand', { required: 'Обязательное поле' })}
-            />
-            {errors.brand && <p className="text-xs text-destructive">{errors.brand.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="add-sku">Артикул</Label>
-            <Input
-              id="add-sku"
-              placeholder="SKU"
-              {...register('sku', { required: 'Обязательное поле' })}
-            />
-            {errors.sku && <p className="text-xs text-destructive">{errors.sku.message}</p>}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1 px-8">
+          <ProductFormFields register={register} errors={errors} />
 
           <SheetFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={mutation.isPending}
+            >
               Отмена
             </Button>
-            <Button type="submit">Добавить</Button>
+            <Button type="submit" disabled={mutation.isPending || isSubmitting}>
+              {mutation.isPending ? 'Добавление...' : 'Добавить'}
+            </Button>
           </SheetFooter>
         </form>
       </SheetContent>

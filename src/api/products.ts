@@ -98,3 +98,25 @@ export function useUpdateProductMutation() {
     },
   });
 }
+
+export async function createProduct(
+  data: Pick<Product, 'title' | 'price' | 'brand' | 'sku'>,
+  token: string,
+): Promise<Product> {
+  const res = await fetch(`${BASE}/products/add`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeader(token) },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) throw new Error('Не удалось добавить товар');
+  return res.json() as Promise<Product>;
+}
+
+export function useAddProductMutation() {
+  const token = useAuthStore((s) => s.token) ?? '';
+
+  return useMutation({
+    mutationFn: (data: Pick<Product, 'title' | 'price' | 'brand' | 'sku'>) =>
+      createProduct(data, token),
+  });
+}

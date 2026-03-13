@@ -18,22 +18,20 @@ import { Progress } from '@/components/ui/progress';
 import { useProductStore } from '@/store/useProductStore';
 import { useProductsQuery } from '@/api/products';
 import { getColumns, COLUMN_SORT_MAP, API_TO_COLUMN_MAP, type TableProduct } from './columns';
+import { useLoadingProgress } from '@/hooks/useLoadingProgress';
 
 interface ProductsTableProps {
   onEdit: (product: TableProduct) => void;
 }
 
 export function ProductsTable({ onEdit }: ProductsTableProps) {
-  const { localProducts, sortBy, order, setSort } = useProductStore();
+  const { sortBy, order, setSort } = useProductStore();
   const { data, isFetching } = useProductsQuery();
-  console.log('🚀 ~ ProductsTable ~ isFetching:', isFetching);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const progress = useLoadingProgress(isFetching);
 
   const apiProducts = data?.products ?? [];
-  const tableData: TableProduct[] = useMemo(
-    () => [...localProducts, ...apiProducts],
-    [localProducts, apiProducts],
-  );
+  const tableData: TableProduct[] = useMemo(() => apiProducts, [apiProducts]);
 
   const columnId = API_TO_COLUMN_MAP[sortBy] ?? sortBy;
   const sorting: SortingState = sortBy ? [{ id: columnId, desc: order === 'desc' }] : [];
@@ -61,7 +59,9 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
 
   return (
     <div className="relative w-full">
-      {isFetching && <Progress value={null} className="absolute top-0 left-0 right-0 h-0.5 z-10" />}
+      {progress > 0 && (
+        <Progress value={progress} className="absolute top-0 left-0 right-0 h-0.5 z-10" />
+      )}
       <div className="rounded-xl overflow-hidden bg-background">
         <Table>
           <TableHeader>

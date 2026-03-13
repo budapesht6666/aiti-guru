@@ -3,18 +3,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useProductStore } from '@/store/useProductStore';
 import { useUpdateProductMutation } from '@/api/products';
 import type { TableProduct } from '@/components/ProductsTable/columns';
-
-interface EditForm {
-  title: string;
-  price: number;
-  brand: string;
-  sku: string;
-}
+import { useIsMobile } from '@/hooks/useIsMobile';
+import { ProductFormFields, type ProductFormData } from '@/components/ProductFormFields';
 
 interface EditProductSheetProps {
   product: TableProduct | null;
@@ -22,7 +14,7 @@ interface EditProductSheetProps {
 }
 
 export function EditProductSheet({ product, onOpenChange }: EditProductSheetProps) {
-  const updateLocalProduct = useProductStore((s) => s.updateLocalProduct);
+  const isMobile = useIsMobile();
   const mutation = useUpdateProductMutation();
 
   const {
@@ -30,7 +22,7 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<EditForm>();
+  } = useForm<ProductFormData>();
 
   useEffect(() => {
     if (product) {
@@ -43,16 +35,9 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
     }
   }, [product, reset]);
 
-  const onSubmit = async (data: EditForm) => {
+  const onSubmit = async (data: ProductFormData) => {
     if (!product) return;
     const patch = { ...data, price: Number(data.price) };
-
-    if (typeof product.id === 'string' && product.id.startsWith('local-')) {
-      updateLocalProduct(product.id, patch);
-      toast.success('Товар успешно обновлён');
-      onOpenChange(false);
-      return;
-    }
 
     mutation.mutate(
       { id: Number(product.id), patch },
@@ -70,57 +55,16 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
 
   return (
     <Sheet open={!!product} onOpenChange={onOpenChange}>
-      <SheetContent className="w-full sm:max-w-md">
-        <SheetHeader>
+      <SheetContent
+        side={isMobile ? 'bottom' : 'right'}
+        className="w-full sm:max-w-md data-[side=bottom]:max-h-[90vh] data-[side=bottom]:overflow-y-auto"
+      >
+        <SheetHeader className="p-8">
           <SheetTitle>Редактировать товар</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2 px-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-title">Наименование</Label>
-            <Input
-              id="edit-title"
-              placeholder="Название товара"
-              {...register('title', { required: 'Обязательное поле' })}
-            />
-            {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-price">Цена, ₽</Label>
-            <Input
-              id="edit-price"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              {...register('price', {
-                required: 'Обязательное поле',
-                min: { value: 0, message: 'Цена не может быть отрицательной' },
-              })}
-            />
-            {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-brand">Вендор</Label>
-            <Input
-              id="edit-brand"
-              placeholder="Производитель"
-              {...register('brand', { required: 'Обязательное поле' })}
-            />
-            {errors.brand && <p className="text-xs text-destructive">{errors.brand.message}</p>}
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="edit-sku">Артикул</Label>
-            <Input
-              id="edit-sku"
-              placeholder="SKU"
-              {...register('sku', { required: 'Обязательное поле' })}
-            />
-            {errors.sku && <p className="text-xs text-destructive">{errors.sku.message}</p>}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1 px-8">
+          <ProductFormFields register={register} errors={errors} />
 
           <SheetFooter className="mt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
