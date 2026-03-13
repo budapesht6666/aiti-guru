@@ -15,6 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
+import { Spinner } from '@/components/ui/spinner';
 import { useProductStore } from '@/store/useProductStore';
 import { useProductsQuery } from '@/api/products';
 import { getColumns, COLUMN_SORT_MAP, API_TO_COLUMN_MAP, type TableProduct } from './columns';
@@ -26,7 +27,7 @@ interface ProductsTableProps {
 
 export function ProductsTable({ onEdit }: ProductsTableProps) {
   const { sortBy, order, setSort } = useProductStore();
-  const { data, isFetching } = useProductsQuery();
+  const { data, isFetching, isLoading } = useProductsQuery();
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const progress = useLoadingProgress(isFetching);
 
@@ -57,9 +58,17 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
     enableRowSelection: true,
   });
 
+  if (isLoading && !data) {
+    return (
+      <div className="flex justify-center items-center py-24">
+        <Spinner className="size-8" />
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full">
-      {progress > 0 && (
+      {progress > 0 && isFetching && (
         <Progress value={progress} className="absolute top-0 left-0 right-0 h-0.5 z-10" />
       )}
       <div className="rounded-xl overflow-hidden bg-background">
