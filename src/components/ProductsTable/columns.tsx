@@ -2,9 +2,8 @@ import type { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import type { Product } from '@/types/product';
-import type { LocalProduct } from '@/store/useProductStore';
 
-export type TableProduct = Product | LocalProduct;
+export type TableProduct = Product;
 
 export const COLUMN_SORT_MAP: Record<string, string> = {
   product: 'title',
@@ -22,10 +21,6 @@ export const API_TO_COLUMN_MAP: Record<string, string> = {
   price: 'price',
 };
 
-function isLocalProduct(p: TableProduct): p is LocalProduct {
-  return typeof p.id === 'string';
-}
-
 interface ColumnOptions {
   onEdit: (product: TableProduct) => void;
 }
@@ -36,13 +31,8 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
       id: 'select',
       header: ({ table }) => (
         <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected()
-              ? true
-              : table.getIsSomePageRowsSelected()
-                ? false
-                : false
-          }
+          checked={table.getIsAllPageRowsSelected()}
+          indeterminate={table.getIsSomePageRowsSelected()}
           onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
           aria-label="Выбрать все"
         />
@@ -101,7 +91,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
     {
       id: 'rating',
       header: 'Оценка',
-      accessorFn: (row) => (isLocalProduct(row) ? 0 : (row as Product).rating),
+      accessorFn: (row) => row.rating,
       cell: ({ getValue }) => {
         const v = getValue<number>();
         const low = v < 3;
