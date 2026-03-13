@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { useProductStore } from '@/store/useProductStore';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ProductsTable } from '@/components/ProductsTable/ProductsTable';
 import { Pagination } from '@/components/Pagination';
@@ -10,17 +10,14 @@ import { EditProductSheet } from '@/components/EditProductSheet';
 import type { TableProduct } from '@/components/ProductsTable/columns';
 
 export function ProductsPage() {
-  const { fetchProducts } = useProductStore();
+  const queryClient = useQueryClient();
   const logout = useAuthStore((s) => s.logout);
 
   const [addOpen, setAddOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<TableProduct | null>(null);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
   const handleEdit = useCallback((p: TableProduct) => setEditProduct(p), []);
+  const handleRefetch = () => queryClient.invalidateQueries({ queryKey: ['products'] });
 
   return (
     <div className="min-h-screen bg-[#f6f6f6]">
@@ -60,7 +57,7 @@ export function ProductsPage() {
                 variant="outline"
                 size="icon"
                 className="w-10.5 h-10.5 rounded-lg border-border"
-                onClick={() => fetchProducts()}
+                onClick={handleRefetch}
                 aria-label="Обновить"
               >
                 <svg

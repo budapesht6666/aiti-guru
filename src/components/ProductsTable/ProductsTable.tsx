@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
 import { useProductStore } from '@/store/useProductStore';
+import { useProductsQuery } from '@/api/products';
 import { getColumns, COLUMN_SORT_MAP, API_TO_COLUMN_MAP, type TableProduct } from './columns';
 
 interface ProductsTableProps {
@@ -23,12 +24,15 @@ interface ProductsTableProps {
 }
 
 export function ProductsTable({ onEdit }: ProductsTableProps) {
-  const { products, localProducts, isLoading, sortBy, order, setSort } = useProductStore();
+  const { localProducts, sortBy, order, setSort } = useProductStore();
+  const { data, isFetching } = useProductsQuery();
+  console.log('🚀 ~ ProductsTable ~ isFetching:', isFetching);
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const data: TableProduct[] = useMemo(
-    () => [...localProducts, ...products],
-    [localProducts, products],
+  const apiProducts = data?.products ?? [];
+  const tableData: TableProduct[] = useMemo(
+    () => [...localProducts, ...apiProducts],
+    [localProducts, apiProducts],
   );
 
   const columnId = API_TO_COLUMN_MAP[sortBy] ?? sortBy;
@@ -37,7 +41,7 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
   const columns = useMemo(() => getColumns({ onEdit }), [onEdit]);
 
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
     state: { sorting, rowSelection },
     onRowSelectionChange: setRowSelection,
@@ -57,7 +61,7 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
 
   return (
     <div className="relative w-full">
-      {isLoading && <Progress value={null} className="absolute top-0 left-0 right-0 h-0.5 z-10" />}
+      {isFetching && <Progress value={null} className="absolute top-0 left-0 right-0 h-0.5 z-10" />}
       <div className="rounded-xl overflow-hidden bg-background">
         <Table>
           <TableHeader>
@@ -85,7 +89,7 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.length === 0 && !isLoading && (
+            {table.getRowModel().rows.length === 0 && !isFetching && (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}

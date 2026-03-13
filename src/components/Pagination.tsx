@@ -1,10 +1,13 @@
 import { Button } from '@/components/ui/button';
 import { useProductStore } from '@/store/useProductStore';
+import { useProductsQuery } from '@/api/products';
 
 const PAGE_SIZE = 20;
 
 export function Pagination() {
-  const { currentPage, total, setPage } = useProductStore();
+  const { currentPage, setPage } = useProductStore();
+  const { data } = useProductsQuery();
+  const total = data?.total ?? 0;
   const totalPages = Math.ceil(total / PAGE_SIZE);
   if (total === 0) return null;
 

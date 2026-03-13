@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useProductStore } from '@/store/useProductStore';
+import { useUpdateProductMutation } from '@/api/products';
 import type { TableProduct } from '@/components/ProductsTable/columns';
 
 interface EditForm {
@@ -21,7 +22,8 @@ interface EditProductSheetProps {
 }
 
 export function EditProductSheet({ product, onOpenChange }: EditProductSheetProps) {
-  const updateProduct = useProductStore((s) => s.updateProduct);
+  const updateLocalProduct = useProductStore((s) => s.updateLocalProduct);
+  const mutation = useUpdateProductMutation();
 
   const {
     register,
@@ -43,13 +45,27 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
 
   const onSubmit = async (data: EditForm) => {
     if (!product) return;
-    try {
-      await updateProduct(product.id, { ...data, price: Number(data.price) });
+    const patch = { ...data, price: Number(data.price) };
+
+    if (typeof product.id === 'string' && product.id.startsWith('local-')) {
+      updateLocalProduct(product.id, patch);
       toast.success('Товар успешно обновлён');
       onOpenChange(false);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Не удалось обновить товар');
+      return;
     }
+
+    mutation.mutate(
+      { id: Number(product.id), patch },
+      {
+        onSuccess: () => {
+          toast.success('Товар успешно обновлён');
+          onOpenChange(false);
+        },
+        onError: (err) => {
+          toast.error(err instanceof Error ? err.message : 'Не удалось обновить товар');
+        },
+      },
+    );
   };
 
   return (
@@ -110,8 +126,8 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Отмена
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Сохранение...' : 'Сохранить'}
+            <Button type="submit" disabled={isSubmitting || mutation.isPending}>
+              {isSubmitting || mutation.isPending ? 'Сохранение...' : 'Сохранить'}
             </Button>
           </SheetFooter>
         </form>

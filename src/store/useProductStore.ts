@@ -1,60 +1,34 @@
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
-import type { Product } from '@/types/product'
-import { getProducts, searchProducts, updateProduct as apiUpdateProduct } from '@/api/products'
-import type { ProductPatch } from '@/types/product'
-import { useAuthStore } from './useAuthStore'
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+import type { Product } from '@/types/product';
+import type { ProductPatch } from '@/types/product';
 
 export interface LocalProduct extends Omit<Product, 'id'> {
-  id: string
+  id: string;
 }
 
 interface ProductState {
-  products: Product[]
-  localProducts: LocalProduct[]
-  isLoading: boolean
-  sortBy: string
-  order: 'asc' | 'desc'
-  currentPage: number
-  total: number
-  search: string
+  localProducts: LocalProduct[];
+  sortBy: string;
+  order: 'asc' | 'desc';
+  currentPage: number;
+  search: string;
 
-  fetchProducts: () => Promise<void>
-  addProduct: (data: Pick<Product, 'title' | 'price' | 'brand' | 'sku'>) => void
-  updateProduct: (id: number | string, patch: ProductPatch) => Promise<void>
-  setSort: (sortBy: string, order: 'asc' | 'desc') => void
-  setPage: (page: number) => void
-  setSearch: (q: string) => void
+  addProduct: (data: Pick<Product, 'title' | 'price' | 'brand' | 'sku'>) => void;
+  updateLocalProduct: (id: string, patch: ProductPatch) => void;
+  setSort: (sortBy: string, order: 'asc' | 'desc') => void;
+  setPage: (page: number) => void;
+  setSearch: (q: string) => void;
 }
 
 export const useProductStore = create<ProductState>()(
   devtools(
-    (set, get) => ({
-      products: [],
+    (set) => ({
       localProducts: [],
-      isLoading: false,
       sortBy: 'title',
       order: 'asc',
       currentPage: 1,
-      total: 0,
       search: '',
-
-      fetchProducts: async () => {
-        const { sortBy, order, currentPage, search } = get()
-        const token = useAuthStore.getState().token ?? ''
-        set({ isLoading: true })
-        try {
-          let resp
-          if (search.trim()) {
-            resp = await searchProducts({ q: search, sortBy, order, page: currentPage }, token)
-          } else {
-            resp = await getProducts({ sortBy, order, page: currentPage }, token)
-          }
-          set({ products: resp.products, total: resp.total })
-        } finally {
-          set({ isLoading: false })
-        }
-      },
 
       addProduct: (data) => {
         const newProduct: LocalProduct = {
@@ -70,41 +44,28 @@ export const useProductStore = create<ProductState>()(
           stock: 0,
           availabilityStatus: '',
           discountPercentage: 0,
-        }
-        set((s) => ({ localProducts: [newProduct, ...s.localProducts] }))
+        };
+        set((s) => ({ localProducts: [newProduct, ...s.localProducts] }));
       },
 
-      updateProduct: async (id, patch) => {
-        if (typeof id === 'string' && id.startsWith('local-')) {
-          set((s) => ({
-            localProducts: s.localProducts.map((p) =>
-              p.id === id ? { ...p, ...patch } : p,
-            ),
-          }))
-          return
-        }
-        const token = useAuthStore.getState().token ?? ''
-        const updated = await apiUpdateProduct(id as number, patch, token)
+      updateLocalProduct: (id, patch) => {
         set((s) => ({
-          products: s.products.map((p) => (p.id === updated.id ? { ...p, ...updated } : p)),
-        }))
+          localProducts: s.localProducts.map((p) => (p.id === id ? { ...p, ...patch } : p)),
+        }));
       },
 
       setSort: (sortBy, order) => {
-        set({ sortBy, order, currentPage: 1 })
-        get().fetchProducts()
+        set({ sortBy, order, currentPage: 1 });
       },
 
       setPage: (page) => {
-        set({ currentPage: page })
-        get().fetchProducts()
+        set({ currentPage: page });
       },
 
       setSearch: (q) => {
-        set({ search: q, currentPage: 1 })
-        get().fetchProducts()
+        set({ search: q, currentPage: 1 });
       },
     }),
     { name: 'ProductStore', enabled: import.meta.env.DEV },
   ),
-)
+);
