@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { useProductStore } from '@/store/useProductStore';
-import { useProductsQuery } from '@/api/products';
-
-const PAGE_SIZE = 20;
+import { PAGE_SIZE, useProductsQuery } from '@/api/products';
 
 export function Pagination() {
   const { currentPage, setPage } = useProductStore();

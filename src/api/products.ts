@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useProductStore } from '@/store/useProductStore';
 
 const BASE = 'https://dummyjson.com';
-const PAGE_SIZE = 20;
+export const PAGE_SIZE = 20;
 
 export interface GetProductsParams {
   sortBy?: string;
