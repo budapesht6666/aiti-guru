@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   type SortingState,
   type RowSelectionState,
-} from '@tanstack/react-table'
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -13,29 +13,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table'
-import { Progress } from '@/components/ui/progress'
-import { useProductStore } from '@/store/useProductStore'
-import { getColumns, type TableProduct } from './columns'
+} from '@/components/ui/table';
+import { Progress } from '@/components/ui/progress';
+import { useProductStore } from '@/store/useProductStore';
+import { getColumns, COLUMN_SORT_MAP, API_TO_COLUMN_MAP, type TableProduct } from './columns';
 
 interface ProductsTableProps {
-  onEdit: (product: TableProduct) => void
+  onEdit: (product: TableProduct) => void;
 }
 
 export function ProductsTable({ onEdit }: ProductsTableProps) {
-  const { products, localProducts, isLoading, sortBy, order, setSort } = useProductStore()
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const { products, localProducts, isLoading, sortBy, order, setSort } = useProductStore();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
-  const data: TableProduct[] = [
-    ...localProducts,
-    ...products,
-  ]
+  const data: TableProduct[] = useMemo(
+    () => [...localProducts, ...products],
+    [localProducts, products],
+  );
 
-  const sorting: SortingState = sortBy
-    ? [{ id: sortBy, desc: order === 'desc' }]
-    : []
+  const columnId = API_TO_COLUMN_MAP[sortBy] ?? sortBy;
+  const sorting: SortingState = sortBy ? [{ id: columnId, desc: order === 'desc' }] : [];
 
-  const columns = getColumns({ onEdit })
+  const columns = useMemo(() => getColumns({ onEdit }), [onEdit]);
 
   const table = useReactTable({
     data,
@@ -43,33 +42,32 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
     state: { sorting, rowSelection },
     onRowSelectionChange: setRowSelection,
     onSortingChange: (updater) => {
-      const next = typeof updater === 'function' ? updater(sorting) : updater
+      const next = typeof updater === 'function' ? updater(sorting) : updater;
       if (next.length > 0) {
-        setSort(next[0].id, next[0].desc ? 'desc' : 'asc')
+        const apiField = COLUMN_SORT_MAP[next[0].id] ?? next[0].id;
+        setSort(apiField, next[0].desc ? 'desc' : 'asc');
       } else {
-        setSort('title', 'asc')
+        setSort('title', 'asc');
       }
     },
     manualSorting: true,
     getCoreRowModel: getCoreRowModel(),
     enableRowSelection: true,
-  })
+  });
 
   return (
     <div className="relative w-full">
-      {isLoading && (
-        <Progress value={null} className="absolute top-0 left-0 right-0 h-0.5 z-10" />
-      )}
-      <div className="rounded-xl border border-border overflow-hidden bg-background">
+      {isLoading && <Progress value={null} className="absolute top-0 left-0 right-0 h-0.5 z-10" />}
+      <div className="rounded-xl overflow-hidden bg-background">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((hg) => (
-              <TableRow key={hg.id} className="bg-muted/30 hover:bg-muted/30">
+              <TableRow key={hg.id} className="hover:bg-transparent border-b-0">
                 {hg.headers.map((header) => (
                   <TableHead
                     key={header.id}
                     style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
-                    className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+                    className={`text-[#b2b3b9] font-bold text-base ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <div className="flex items-center gap-1">
@@ -89,7 +87,10 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
           <TableBody>
             {table.getRowModel().rows.length === 0 && !isLoading && (
               <TableRow>
-                <TableCell colSpan={columns.length} className="text-center py-12 text-muted-foreground">
+                <TableCell
+                  colSpan={columns.length}
+                  className="text-center py-12 text-muted-foreground"
+                >
                   Нет данных
                 </TableCell>
               </TableRow>
@@ -99,9 +100,7 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
                 key={row.id}
                 data-state={row.getIsSelected() ? 'selected' : undefined}
                 className={`border-b border-border last:border-0 transition-colors ${
-                  row.getIsSelected()
-                    ? 'border-l-4 border-l-primary bg-primary/5'
-                    : ''
+                  row.getIsSelected() ? 'border-l-4 border-l-primary bg-primary/5' : ''
                 }`}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -115,5 +114,5 @@ export function ProductsTable({ onEdit }: ProductsTableProps) {
         </Table>
       </div>
     </div>
-  )
+  );
 }

@@ -1,40 +1,34 @@
-import { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useProductStore } from '@/store/useProductStore'
-import type { TableProduct } from '@/components/ProductsTable/columns'
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useProductStore } from '@/store/useProductStore';
+import type { TableProduct } from '@/components/ProductsTable/columns';
 
 interface EditForm {
-  title: string
-  price: number
-  brand: string
-  sku: string
+  title: string;
+  price: number;
+  brand: string;
+  sku: string;
 }
 
 interface EditProductSheetProps {
-  product: TableProduct | null
-  onOpenChange: (open: boolean) => void
+  product: TableProduct | null;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function EditProductSheet({ product, onOpenChange }: EditProductSheetProps) {
-  const updateProduct = useProductStore((s) => s.updateProduct)
+  const updateProduct = useProductStore((s) => s.updateProduct);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<EditForm>()
+  } = useForm<EditForm>();
 
   useEffect(() => {
     if (product) {
@@ -43,20 +37,20 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
         price: product.price,
         brand: product.brand ?? '',
         sku: product.sku ?? '',
-      })
+      });
     }
-  }, [product, reset])
+  }, [product, reset]);
 
   const onSubmit = async (data: EditForm) => {
-    if (!product) return
+    if (!product) return;
     try {
-      await updateProduct(product.id, { ...data, price: Number(data.price) })
-      toast.success('Товар успешно обновлён')
-      onOpenChange(false)
+      await updateProduct(product.id, { ...data, price: Number(data.price) });
+      toast.success('Товар успешно обновлён');
+      onOpenChange(false);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Не удалось обновить товар')
+      toast.error(err instanceof Error ? err.message : 'Не удалось обновить товар');
     }
-  }
+  };
 
   return (
     <Sheet open={!!product} onOpenChange={onOpenChange}>
@@ -65,7 +59,7 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
           <SheetTitle>Редактировать товар</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-6 px-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2 px-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="edit-title">Наименование</Label>
             <Input
@@ -123,5 +117,5 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
         </form>
       </SheetContent>
     </Sheet>
-  )
+  );
 }

@@ -1,45 +1,39 @@
-import { useForm } from 'react-hook-form'
-import { toast } from 'sonner'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-} from '@/components/ui/sheet'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { useProductStore } from '@/store/useProductStore'
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useProductStore } from '@/store/useProductStore';
 
 interface AddForm {
-  title: string
-  price: number
-  brand: string
-  sku: string
+  title: string;
+  price: number;
+  brand: string;
+  sku: string;
 }
 
 interface AddProductSheetProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export function AddProductSheet({ open, onOpenChange }: AddProductSheetProps) {
-  const addProduct = useProductStore((s) => s.addProduct)
+  const addProduct = useProductStore((s) => s.addProduct);
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<AddForm>()
+  } = useForm<AddForm>();
 
   const onSubmit = (data: AddForm) => {
-    addProduct({ ...data, price: Number(data.price) })
-    toast.success('Товар успешно добавлен')
-    reset()
-    onOpenChange(false)
-  }
+    addProduct({ ...data, price: Number(data.price) });
+    toast.success('Товар успешно добавлен');
+    reset();
+    onOpenChange(false);
+  };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -48,7 +42,7 @@ export function AddProductSheet({ open, onOpenChange }: AddProductSheetProps) {
           <SheetTitle>Добавить товар</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-6 px-1">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2 px-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="add-title">Наименование</Label>
             <Input
@@ -104,5 +98,5 @@ export function AddProductSheet({ open, onOpenChange }: AddProductSheetProps) {
         </form>
       </SheetContent>
     </Sheet>
-  )
+  );
 }
