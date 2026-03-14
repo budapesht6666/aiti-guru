@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <script>
       var l = window.location;
-      sessionStorage.redirect = l.pathname.replace('/aiti-guru', '') + l.search + l.hash;
+      sessionStorage.redirect = l.pathname + l.search + l.hash;
       l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/aiti-guru/');
     </script>
   </head>
