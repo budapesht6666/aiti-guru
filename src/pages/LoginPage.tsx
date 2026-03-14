@@ -56,7 +56,7 @@ export function LoginPage() {
         <div className="p-8 flex flex-col gap-6">
           {/* Logo */}
           <div className="flex flex-col items-center gap-2">
-            <img src="/logo.svg" alt="Logo" width={35} height={34} />
+            <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo" width={35} height={34} />
             <h1 className="text-2xl font-bold text-foreground mt-2">Добро пожаловать!</h1>
             <p className="text-sm text-muted-foreground text-center">Пожалуйста, авторизируйтесь</p>
           </div>
