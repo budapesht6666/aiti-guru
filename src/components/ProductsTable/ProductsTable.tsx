@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
@@ -18,12 +18,12 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Progress } from '@/components/ui/progress';
-import { Spinner } from '@/components/ui/spinner';
 import { useProductStore } from '@/store/useProductStore';
 import { useProductsQuery } from '@/api/products';
 import { getColumns, COLUMN_SORT_MAP, API_TO_COLUMN_MAP, type TableProduct } from './columns';
 import { useLoadingProgress } from '@/hooks/useLoadingProgress';
 import { useIsMobile } from '@/hooks/useIsMobile';
+import { TableSkeleton } from '@/components/TableSkeleton';
 
 const COLUMN_PINNING: ColumnPinningState = {
   left: ['select', 'product'],
@@ -53,14 +53,17 @@ const ProductRow = memo(
     row,
     isSelected,
     offsets,
+    animDelay,
   }: {
     row: Row<TableProduct>;
     isSelected: boolean;
     offsets: Record<string, number>;
+    animDelay: number;
   }) => (
     <TableRow
       data-state={isSelected ? 'selected' : undefined}
-      className={`border-b border-border last:border-0 ${isSelected ? 'bg-primary/5' : ''}`}
+      className={`border-b border-border last:border-0 animate-row-enter transition-colors duration-200 ${isSelected ? 'bg-primary/5' : ''}`}
+      style={{ animationDelay: `${animDelay}ms` }}
     >
       {row.getVisibleCells().map((cell) => {
         const pinnedStyle = getPinnedStyle(cell.column, offsets);
@@ -73,6 +76,7 @@ const ProductRow = memo(
               [
                 pinnedStyle ? (isSelected ? 'bg-muted' : 'bg-background') : undefined,
                 isSelectCol ? 'relative overflow-visible' : undefined,
+                'transition-colors duration-200',
               ]
                 .filter(Boolean)
                 .join(' ') || undefined
@@ -80,7 +84,7 @@ const ProductRow = memo(
           >
             {isSelectCol && (
               <span
-                className={`absolute left-0 top-0 h-full w-1 ${isSelected ? 'bg-primary' : 'bg-transparent'}`}
+                className={`selection-indicator absolute left-0 top-0 h-full w-1 ${isSelected ? 'bg-primary' : 'bg-transparent'}`}
               />
             )}
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -93,7 +97,8 @@ const ProductRow = memo(
     prev.isSelected === next.isSelected &&
     prev.row.id === next.row.id &&
     prev.row.original === next.row.original &&
-    prev.offsets === next.offsets,
+    prev.offsets === next.offsets &&
+    prev.animDelay === next.animDelay,
 );
 
 export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
@@ -117,6 +122,13 @@ export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
 
   const columns = useMemo(() => getColumns({ onEdit }), [onEdit]);
 
+  const animKeyRef = useRef(0);
+  const prevDataRef = useRef(tableData);
+  if (prevDataRef.current !== tableData) {
+    prevDataRef.current = tableData;
+    animKeyRef.current += 1;
+  }
+
   const table = useReactTable({
     data: tableData,
     columns,
@@ -139,11 +151,7 @@ export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
   });
 
   if (isLoading && !data) {
-    return (
-      <div className="flex justify-center items-center py-24">
-        <Spinner className="size-8" />
-      </div>
-    );
+    return <TableSkeleton rows={10} isMobile={isMobile} />;
   }
 
   return (
@@ -151,7 +159,9 @@ export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
       {progress > 0 && isFetching && (
         <Progress value={progress} className="absolute top-0 left-0 right-0 h-0.5 z-10" />
       )}
-      <div className="rounded-xl overflow-hidden bg-background">
+      <div
+        className={`rounded-xl overflow-hidden bg-background transition-opacity duration-200 ${isFetching ? 'opacity-70' : 'opacity-100'}`}
+      >
         <Table className={isMobile ? 'min-w-185.5' : 'min-w-244.5'}>
           <colgroup>
             <col style={{ width: isMobile ? 32 : 48 }} />
@@ -171,7 +181,7 @@ export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
                     <TableHead
                       key={header.id}
                       style={pinnedStyle ? { ...pinnedStyle, zIndex: 2 } : undefined}
-                      className={`text-[#b2b3b9] font-bold text-sm md:text-base ${pinnedStyle ? 'bg-background' : ''} ${header.column.getCanSort() ? 'cursor-pointer select-none' : ''}`}
+                      className={`text-[#b2b3b9] font-bold text-sm md:text-base ${pinnedStyle ? 'bg-background' : ''} ${header.column.getCanSort() ? 'cursor-pointer select-none group/sort' : ''}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       <div
@@ -179,12 +189,16 @@ export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
                       >
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
-                          <span className="text-xs text-muted-foreground w-3 inline-block text-center">
-                            {header.column.getIsSorted() === 'asc'
-                              ? '↑'
-                              : header.column.getIsSorted() === 'desc'
-                                ? '↓'
-                                : ''}
+                          <span className="text-xs text-muted-foreground w-3 inline-block text-center transition-transform duration-200">
+                            {header.column.getIsSorted() === 'asc' ? (
+                              '↑'
+                            ) : header.column.getIsSorted() === 'desc' ? (
+                              '↓'
+                            ) : (
+                              <span className="opacity-0 group-hover/sort:opacity-40 transition-opacity duration-200">
+                                ↕
+                              </span>
+                            )}
                           </span>
                         )}
                       </div>
@@ -194,23 +208,24 @@ export function ProductsTable({ onEdit, resetKey }: ProductsTableProps) {
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody key={animKeyRef.current}>
             {table.getRowModel().rows.length === 0 && !isFetching && (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="text-center py-12 text-muted-foreground"
+                  className="text-center py-12 text-muted-foreground animate-fade-in-up"
                 >
                   Нет данных
                 </TableCell>
               </TableRow>
             )}
-            {table.getRowModel().rows.map((row) => (
+            {table.getRowModel().rows.map((row, index) => (
               <ProductRow
                 key={row.id}
                 row={row}
                 isSelected={row.getIsSelected()}
                 offsets={offsets}
+                animDelay={index * 30}
               />
             ))}
           </TableBody>

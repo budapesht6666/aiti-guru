@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
+import { LazyImage } from '@/components/LazyImage';
 import type { Product } from '@/types/product';
 
 export type TableProduct = Product;
@@ -61,11 +62,10 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
         return (
           <div className="flex items-center gap-2 md:gap-3 min-w-0">
             {p.thumbnail ? (
-              <img
+              <LazyImage
                 src={p.thumbnail}
                 alt={p.title}
-                loading="lazy"
-                className="w-9 h-9 md:w-12 md:h-12 object-cover rounded-lg shrink-0 bg-muted"
+                className="w-9 h-9 md:w-12 md:h-12 rounded-lg shrink-0 bg-muted"
               />
             ) : (
               <div className="w-9 h-9 md:w-12 md:h-12 rounded-lg bg-muted shrink-0" />
@@ -132,7 +132,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
         <div className="flex items-center gap-1.5">
           <Button
             size="icon"
-            className="w-13 h-6.75 rounded-[1rem] bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="w-13 h-6.75 rounded-[1rem] bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-150 hover:scale-105 hover:shadow-md hover:shadow-primary/25 active:scale-95"
             onClick={() => onEdit(row.original)}
             aria-label="Редактировать"
           >
@@ -149,7 +149,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
           <Button
             size="icon"
             variant="outline"
-            className="w-8 h-8 rounded-full border-border text-muted-foreground hover:text-foreground"
+            className="w-8 h-8 rounded-full border-border text-muted-foreground hover:text-foreground transition-all duration-150 hover:scale-105 active:scale-95"
             aria-label="Ещё"
           >
             <svg

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
+import { motion } from 'motion/react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { useUpdateProductMutation } from '@/api/products';
@@ -63,18 +64,33 @@ export function EditProductSheet({ product, onOpenChange }: EditProductSheetProp
           <SheetTitle>Редактировать товар</SheetTitle>
         </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1 px-8">
+        <motion.form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-1 px-8"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.3 }}
+        >
           <ProductFormFields register={register} errors={errors} />
 
           <SheetFooter className="mt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="transition-transform duration-150 active:scale-[0.97]"
+            >
               Отмена
             </Button>
-            <Button type="submit" disabled={isSubmitting || mutation.isPending}>
+            <Button
+              type="submit"
+              disabled={isSubmitting || mutation.isPending}
+              className="transition-transform duration-150 active:scale-[0.97]"
+            >
               {isSubmitting || mutation.isPending ? 'Сохранение...' : 'Сохранить'}
             </Button>
           </SheetFooter>
-        </form>
+        </motion.form>
       </SheetContent>
     </Sheet>
   );

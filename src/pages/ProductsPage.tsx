@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { motion } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useProductStore } from '@/store/useProductStore';
@@ -18,24 +19,39 @@ export function ProductsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [editProduct, setEditProduct] = useState<TableProduct | null>(null);
   const [resetKey, setResetKey] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleEdit = useCallback((p: TableProduct) => setEditProduct(p), []);
   const handleRefetch = () => {
+    setIsRefreshing(true);
     resetFilters();
     setResetKey((k) => k + 1);
     queryClient.invalidateQueries({ queryKey: ['products'] });
+    setTimeout(() => setIsRefreshing(false), 600);
   };
 
   return (
     <div className="min-h-screen lg-bg-neutral">
       {/* Navigation bar */}
-      <header className="glass-nav rounded-[10px] mx-4 sm:mx-6 lg:mx-7.5 sticky top-5 z-20">
+      <motion.header
+        className="glass-nav rounded-[10px] mx-4 sm:mx-6 lg:mx-7.5 sticky top-5 z-20"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="px-7.5 h-26.25 flex items-center gap-4">
           <h1 className="text-2xl font-bold text-foreground shrink-0">Товары</h1>
           <div className="flex-1 flex justify-center">
             <SearchInput />
           </div>
-          <Button variant="ghost" size="icon" onClick={logout} aria-label="Выйти" title="Выйти">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={logout}
+            aria-label="Выйти"
+            title="Выйти"
+            className="transition-transform duration-150 hover:scale-105 active:scale-95"
+          >
             <svg
               className="w-5 h-5"
               fill="none"
@@ -51,10 +67,15 @@ export function ProductsPage() {
             </svg>
           </Button>
         </div>
-      </header>
+      </motion.header>
 
       {/* Content card */}
-      <main className="mx-4 sm:mx-6 lg:mx-7.5 mt-7.5 pb-6">
+      <motion.main
+        className="mx-4 sm:mx-6 lg:mx-7.5 mt-7.5 pb-6"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+      >
         <div className="glass-section rounded-xl p-3 sm:p-5 lg:p-7.5 flex flex-col gap-5 lg:gap-10">
           {/* Card header */}
           <div className="flex items-center justify-between flex-wrap gap-3">
@@ -63,12 +84,12 @@ export function ProductsPage() {
               <Button
                 variant="outline"
                 size="icon"
-                className="w-10.5 h-10.5 rounded-lg border-border"
+                className="w-10.5 h-10.5 rounded-lg border-border transition-transform duration-150 hover:scale-105 active:scale-95"
                 onClick={handleRefetch}
                 aria-label="Обновить"
               >
                 <svg
-                  className="w-5.5 h-5.5"
+                  className={`w-5.5 h-5.5 ${isRefreshing ? 'animate-spin-once' : ''}`}
                   fill="none"
                   stroke="currentColor"
                   strokeWidth={2}
@@ -83,7 +104,7 @@ export function ProductsPage() {
               </Button>
               <Button
                 onClick={() => setAddOpen(true)}
-                className="gap-3.75 min-h-10.5 rounded-md bg-[#242edb] hover:bg-[#242edb]/90 px-5"
+                className="gap-3.75 min-h-10.5 rounded-md bg-[#242edb] hover:bg-[#242edb]/90 px-5 transition-all duration-150 hover:scale-[1.02] hover:shadow-lg hover:shadow-[#242edb]/20 active:scale-[0.98]"
               >
                 <svg
                   className="w-5.5 h-5.5"
@@ -106,7 +127,7 @@ export function ProductsPage() {
           {/* Pagination */}
           <Pagination />
         </div>
-      </main>
+      </motion.main>
 
       {/* Sheets */}
       <AddProductSheet open={addOpen} onOpenChange={setAddOpen} />

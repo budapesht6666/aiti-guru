@@ -1,4 +1,5 @@
 import { UseFormRegister, FieldErrors } from 'react-hook-form';
+import { AnimatePresence, motion } from 'motion/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -22,13 +23,22 @@ export function ProductFormFields({ register, errors }: ProductFormFieldsProps) 
         <Input
           id="product-title"
           placeholder="Название товара"
+          className="transition-shadow duration-200 focus:shadow-md focus:shadow-primary/10"
           {...register('title', { required: 'Обязательное поле' })}
         />
-        {errors.title && (
-          <p className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive">
-            {errors.title.message}
-          </p>
-        )}
+        <AnimatePresence>
+          {errors.title && (
+            <motion.p
+              className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+            >
+              {errors.title.message}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="relative flex flex-col gap-1.5 pb-4">
@@ -39,16 +49,25 @@ export function ProductFormFields({ register, errors }: ProductFormFieldsProps) 
           step="0.01"
           min="0"
           placeholder="0.00"
+          className="transition-shadow duration-200 focus:shadow-md focus:shadow-primary/10"
           {...register('price', {
             required: 'Обязательное поле',
             min: { value: 0, message: 'Цена не может быть отрицательной' },
           })}
         />
-        {errors.price && (
-          <p className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive">
-            {errors.price.message}
-          </p>
-        )}
+        <AnimatePresence>
+          {errors.price && (
+            <motion.p
+              className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+            >
+              {errors.price.message}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="relative flex flex-col gap-1.5 pb-4">
@@ -56,13 +75,22 @@ export function ProductFormFields({ register, errors }: ProductFormFieldsProps) 
         <Input
           id="product-brand"
           placeholder="Производитель"
+          className="transition-shadow duration-200 focus:shadow-md focus:shadow-primary/10"
           {...register('brand', { required: 'Обязательное поле' })}
         />
-        {errors.brand && (
-          <p className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive">
-            {errors.brand.message}
-          </p>
-        )}
+        <AnimatePresence>
+          {errors.brand && (
+            <motion.p
+              className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+            >
+              {errors.brand.message}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="relative flex flex-col gap-1.5 pb-4">
@@ -70,13 +98,22 @@ export function ProductFormFields({ register, errors }: ProductFormFieldsProps) 
         <Input
           id="product-sku"
           placeholder="SKU"
+          className="transition-shadow duration-200 focus:shadow-md focus:shadow-primary/10"
           {...register('sku', { required: 'Обязательное поле' })}
         />
-        {errors.sku && (
-          <p className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive">
-            {errors.sku.message}
-          </p>
-        )}
+        <AnimatePresence>
+          {errors.sku && (
+            <motion.p
+              className="absolute bottom-[-0.1rem] left-0 text-xs text-destructive"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.15 }}
+            >
+              {errors.sku.message}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </>
   );

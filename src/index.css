@@ -125,7 +125,127 @@
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
+}
+
+/* ── Skeleton loading shimmer ────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, oklch(0.95 0 0) 25%, oklch(0.92 0 0) 37%, oklch(0.95 0 0) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ── Smooth table data fade on pagination/sort ───────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out both;
+}
+
+/* ── Staggered row entrance ──────────────────────────────────── */
+.animate-row-enter {
+  animation: fadeInUp 0.35s ease-out both;
+}
+
+/* ── Smooth selection indicator ──────────────────────────────── */
+.selection-indicator {
+  transition:
+    background-color 0.2s ease,
+    width 0.2s ease;
+}
+
+/* ── Error shake animation ───────────────────────────────────── */
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-4px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ── Pulse glow for loading indicator ────────────────────────── */
+@keyframes pulseGlow {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+/* ── Spinner rotation with slight bounce ─────────────────────── */
+@keyframes spinBounce {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.05);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+.animate-spin-bounce {
+  animation: spinBounce 1s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* ── Refresh button spin ─────────────────────────────────────── */
+@keyframes spinOnce {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-once {
+  animation: spinOnce 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Search input gradient */
@@ -211,4 +331,52 @@
     0 2px 12px rgba(0, 0, 0, 0.04),
     0 0 0 0.5px rgba(182, 178, 218, 0.36),
     inset 0 1.5px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* ── Image skeleton while loading ────────────────────────────── */
+.img-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.img-skeleton::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, oklch(0.95 0 0) 25%, oklch(0.92 0 0) 37%, oklch(0.95 0 0) 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.img-skeleton.loaded::before {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* ── Smooth focus ring for keyboard navigation ───────────────── */
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  transition: outline-offset 0.15s ease;
+}
+
+/* ── Better scrollbar styling ────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: oklch(0.8 0 0);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.7 0 0);
 }

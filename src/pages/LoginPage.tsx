@@ -1,5 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,18 +52,34 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/40 p-4">
       {/* Outer: white base layer */}
-      <div className="w-full max-w-sm glass-card">
+      <motion.div
+        className="w-full max-w-sm glass-card"
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
         {/* Inner content sits above the glass-pane ::before overlay */}
         <div className="p-8 flex flex-col gap-6">
           {/* Logo */}
-          <div className="flex flex-col items-center gap-2">
+          <motion.div
+            className="flex flex-col items-center gap-2"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.4 }}
+          >
             <img src={`${import.meta.env.BASE_URL}logo.svg`} alt="Logo" width={35} height={34} />
             <h1 className="text-2xl font-bold text-foreground mt-2">Добро пожаловать!</h1>
             <p className="text-sm text-muted-foreground text-center">Пожалуйста, авторизируйтесь</p>
-          </div>
+          </motion.div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-1">
+          <motion.form
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-1"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+          >
             {/* Username */}
             <div className="relative flex flex-col gap-1.5 pb-4">
               <Label htmlFor="username">Логин</Label>
@@ -203,16 +220,50 @@ export function LoginPage() {
 
             {/* Root error */}
             <div className="relative h-5">
-              {errors.root && (
-                <p className="inset-x-0 text-sm text-destructive text-center">
-                  {errors.root.message}
-                </p>
-              )}
+              <AnimatePresence>
+                {errors.root && (
+                  <motion.p
+                    key="root-error"
+                    className="inset-x-0 text-sm text-destructive text-center"
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  >
+                    {errors.root.message}
+                  </motion.p>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Submit */}
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Загрузка...' : 'Войти'}
+            <Button
+              type="submit"
+              className="w-full transition-transform duration-150 active:scale-[0.98]"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Загрузка...
+                </span>
+              ) : (
+                'Войти'
+              )}
             </Button>
 
             {/* Divider */}
@@ -229,9 +280,9 @@ export function LoginPage() {
                 Создать
               </span>
             </p>
-          </form>
+          </motion.form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
