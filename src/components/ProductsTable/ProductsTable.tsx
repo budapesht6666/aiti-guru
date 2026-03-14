@@ -71,7 +71,6 @@ const ProductRow = memo(
             style={pinnedStyle}
             className={
               [
-                `& > span:{background-color:'red'}`,
                 pinnedStyle ? (isSelected ? 'bg-muted' : 'bg-background') : undefined,
                 isSelectCol ? 'relative overflow-visible' : undefined,
               ]

@@ -64,6 +64,7 @@ export function getColumns({ onEdit }: ColumnOptions): ColumnDef<TableProduct>[]
               <img
                 src={p.thumbnail}
                 alt={p.title}
+                loading="lazy"
                 className="w-9 h-9 md:w-12 md:h-12 object-cover rounded-lg shrink-0 bg-muted"
               />
             ) : (
